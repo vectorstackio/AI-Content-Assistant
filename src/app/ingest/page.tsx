@@ -5,27 +5,48 @@
 import { useState } from 'react'
 
 import { ingestUrl } from '@/lib/ingest'
+import { ValidationError } from '@/lib/error'
 
 export default function IngestPage() {
   const [url, setUrl] = useState('')
   const [userType, setUserType] = useState('')
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('Test message')
+  const [message, setMessage] = useState('')
   const [messageClasses, setMessageClasses] = useState('text-green-500')
+  const buttonDisabled = !url || !userType
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    if (name === 'url') setUrl(value)
+    if (name === 'userType') setUserType(value)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true)
-    const response = await ingestUrl(url, userType)
-    const msg = response.success
-      ? response.message
-      : response.error
+    try {
+      setLoading(true)
+      const response = await ingestUrl(url, userType)
+      const msg = response.success
+        ? response.message
+        : response.error
 
-    setMessage(msg || '')
-    setMessageClasses(response.success ? 'text-green-500' : 'text-red-500')
-
-    setLoading(false)
-    setUrl('')
+      setMessage(msg || '')
+      setMessageClasses(response.success ? 'text-green-500' : 'text-red-500')
+      setLoading(false)
+      setUrl('')
+      setUserType('')
+    } catch(err) {
+      if (err instanceof ValidationError) {
+        setMessage(err.message)
+        setMessageClasses('text-red-500')
+      }
+      else {
+        setMessage('An unexpected error occurred')
+        setMessageClasses('text-red-500')
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -38,16 +59,18 @@ export default function IngestPage() {
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <input
             type="text"
+            name="url"
             placeholder="https://example.com"
             className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => handleChange(e)}
           />
 
           <select
+            name="userType"
             className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={userType}
-            onChange={(e) => setUserType(e.target.value)}
+            onChange={(e) => handleChange(e)}
           >
             <option value=""> - Select user type - </option>
             <option value="pupil">Student</option>
@@ -55,12 +78,12 @@ export default function IngestPage() {
             <option value="tutor">Tutor</option>
           </select>
 
-          <div className={messageClasses}>{message}</div>
+          {message && <div className={messageClasses}>{message}</div>}
 
           <button
-            disabled={loading}
+            disabled={buttonDisabled || loading}
             type="submit"
-            className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+            className={`bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition ${buttonDisabled || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {loading ? 'Ingesting...' : 'Add Content'}
           </button>
