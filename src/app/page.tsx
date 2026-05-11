@@ -23,6 +23,7 @@ export default function Home() {
   const [streamingAnswer, setStreamingAnswer] = useState<string>('')
   const [isStreaming, setIsStreaming] = useState<boolean>(false)
   const bottomRef = useRef<HTMLDivElement | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const buttonDisabled = !currentQuestion
   const placeholder = 'Ask anything...'
 
@@ -30,9 +31,17 @@ export default function Home() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [conversationPieces])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { value } = e.target
-    setCurrentQuestion(value)
+  const handleTextareaChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    setCurrentQuestion(e.target.value)
+
+    const textarea = textareaRef.current
+
+    if (textarea) {
+      textarea.style.height = 'auto'
+      textarea.style.height = `${textarea.scrollHeight}px`
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,35 +83,6 @@ export default function Home() {
       setIsStreaming(false)
     }
   }
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault()
-  //   setLoading(true)
-  //   try {
-  //     const response = await askQuestion(currentQuestion)
-  //     if (response.success) {
-  //       const current: ConversationPiece  = {
-  //         question: currentQuestion,
-  //         answer: response.answer ?? ''
-  //       }
-  //       setConversationPieces([ ...conversationPieces, current])
-  //       setCurrentQuestion('')
-  //     } else {
-  //       setMessage(response.message ?? '')
-  //     }
-  //   } catch (err) {
-  //     if (err instanceof ValidationError) {
-  //       setMessage(err.message)
-  //       setMessageClasses('text-red-500')
-  //     }
-  //     else {
-  //       setMessage('An unexpected error occurred')
-  //       setMessageClasses('text-red-500')
-  //     }
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
 
   return (
     <main className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -147,13 +127,14 @@ export default function Home() {
         )}
 
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="url"
+          <textarea
+            ref={textareaRef}
+            name="question"
             placeholder={placeholder}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows={1}
             value={currentQuestion}
-            onChange={(e) => handleChange(e)}
+            onChange={handleTextareaChange}
+            className="w-full resize-none overflow-hidden border border-gray-300 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
           {message && <div className={messageClasses}>{message}</div>}
