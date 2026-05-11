@@ -4,7 +4,7 @@
 
 import { useState } from 'react'
 
-import { askQuestion } from '@/lib/question'
+import { askQuestion } from '@/lib/query'
 import { ValidationError } from '@/lib/error'
 
 interface ConversationPiece {

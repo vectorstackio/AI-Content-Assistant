@@ -1,4 +1,4 @@
-// lib/question/index.ts
+// lib/query/index.ts
 
 import config from '../config'
 import { FetchResponse } from '@/types'
