@@ -2,17 +2,7 @@
 
 import config from '../config'
 import { ValidationError } from '../error'
-
-interface FetchResponse {
-  success: boolean
-  message?: string
-  error?: string
-}
-
-interface ValidationInput {
-  url: string
-  userType: string
-}
+import { FetchResponse, ValidationInput } from '@/types'
 
 /**
  * @function ingestUrl
