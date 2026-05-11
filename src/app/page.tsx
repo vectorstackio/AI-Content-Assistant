@@ -3,6 +3,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 import { askQuestion } from '@/lib/query'
 import { ValidationError } from '@/lib/common/error'
@@ -118,7 +120,9 @@ export default function Home() {
                   <div className="bg-blue-600 text-white px-4 py-2 rounded-2xl rounded-br-sm max-w-[75%]">{cp.question}:</div>
                 </div>
                 <div className="flex justify-start">
-                  <div className="bg-gray-200 text-gray-900 px-4 py-2 rounded-2xl rounded-bl-sm max-w-[100%]">{cp.answer}</div>
+                  <div className="bg-gray-200 text-gray-900 px-4 py-2 rounded-2xl rounded-bl-sm max-w-[100%]">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{cp.answer}</ReactMarkdown>
+                  </div>
                 </div>
               </div>)
             )}
@@ -135,7 +139,7 @@ export default function Home() {
 
             <div className="flex justify-start">
               <div className="bg-gray-200 text-gray-900 px-4 py-2 rounded-2xl rounded-bl-sm max-w-[100%]">
-                {streamingAnswer}
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{streamingAnswer}</ReactMarkdown>
                 <span className="animate-pulse">▋</span>
               </div>
             </div>
