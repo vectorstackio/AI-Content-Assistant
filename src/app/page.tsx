@@ -2,7 +2,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import { askQuestion } from '@/lib/query'
 import { ValidationError } from '@/lib/common/error'
@@ -18,8 +18,13 @@ export default function Home() {
   const [conversationPieces, setConversationPieces] = useState<ConversationPiece[]>([])
   const [message, setMessage] = useState<string>('')
   const [messageClasses, setMessageClasses] = useState<string>('text-green-500')
+  const bottomRef = useRef<HTMLDivElement | null>(null)
   const buttonDisabled = !currentQuestion
   const placeholder = 'Ask anything...'
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [conversationPieces])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { value } = e.target
@@ -98,6 +103,7 @@ export default function Home() {
             {loading ? 'Thinking...' : 'Ask'}
           </button>
         </form>
+        <div ref={bottomRef} />
       </div>
     </main>
   )
