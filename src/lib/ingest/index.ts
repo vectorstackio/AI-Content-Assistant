@@ -1,7 +1,7 @@
 // lib/ingest/index.js
 
-import config from '../config'
-import { ValidationError } from '../error'
+import config from '@/lib/common/config'
+import { ValidationError } from '@/lib/common/error'
 import { FetchResponse, ValidationInput } from '@/types'
 
 /**

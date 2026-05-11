@@ -5,7 +5,7 @@
 import { useState } from 'react'
 
 import { ingestUrl } from '@/lib/ingest'
-import { ValidationError } from '@/lib/error'
+import { ValidationError } from '@/lib/common/error'
 
 export default function IngestPage() {
   const [url, setUrl] = useState('')

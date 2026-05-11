@@ -5,7 +5,7 @@
 import { useState } from 'react'
 
 import { askQuestion } from '@/lib/query'
-import { ValidationError } from '@/lib/error'
+import { ValidationError } from '@/lib/common/error'
 
 interface ConversationPiece {
   question: string

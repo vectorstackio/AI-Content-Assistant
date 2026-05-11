@@ -1,6 +1,6 @@
 // lib/query/index.ts
 
-import config from '../config'
+import config from '@/lib/common/config'
 import { FetchResponse } from '@/types'
 
 /**
