@@ -135,6 +135,12 @@ export default function Home() {
             value={currentQuestion}
             onChange={handleTextareaChange}
             className="w-full resize-none overflow-hidden border border-gray-300 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                handleSubmit(e as unknown as React.FormEvent)
+              }
+            }}
           />
 
           {message && <div className={messageClasses}>{message}</div>}
