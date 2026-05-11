@@ -13,10 +13,12 @@ const eslintConfig = defineConfig([
       'no-prototype-builtins': 0,
       'no-console': 2,
       'react/prop-types': ['error'],
-      'no-unused-vars': [
+      '@typescript-eslint/no-unused-vars': [
         'error',
         {
-          'ignoreRestSiblings': true
+          'ignoreRestSiblings': true,
+          'argsIgnorePattern': '^_',
+          'varsIgnorePattern': '^_'
         }
       ],
       'indent': [
@@ -47,4 +49,4 @@ const eslintConfig = defineConfig([
   ]),
 ])
 
-export default eslintConfig;
+export default eslintConfig
