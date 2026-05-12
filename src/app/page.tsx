@@ -94,7 +94,7 @@ export default function Home() {
 
         {
           conversationPieces.length > 0 &&
-          <div>
+          <div className="h-[70vh] overflow-y-auto">
             {conversationPieces.map((cp, i) => (
               <div className="flex flex-col gap-3 mb-6" key={i}>
                 {/* USER MESSAGE */}
@@ -129,6 +129,7 @@ export default function Home() {
                 </div>
               </div>)
             )}
+            <div ref={bottomRef} />
           </div>
         }
 
@@ -199,7 +200,6 @@ export default function Home() {
             </button>
           </form>
         </div>
-        <div ref={bottomRef} />
       </div>
     </main>
   )
