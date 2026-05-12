@@ -5,6 +5,7 @@
 import { useState, useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { User, Bot } from 'lucide-react'
 
 import { askQuestion } from '@/lib/query'
 import { ValidationError } from '@/lib/common/error'
@@ -96,12 +97,34 @@ export default function Home() {
           <div>
             {conversationPieces.map((cp, i) => (
               <div className="flex flex-col gap-3 mb-6" key={i}>
+                {/* USER MESSAGE */}
                 <div className="flex justify-end">
-                  <div className="bg-blue-600 text-white px-4 py-2 rounded-2xl rounded-br-sm max-w-[75%]">{cp.question}:</div>
+                  <div className="flex items-end gap-3 max-w-[80%]">
+
+                    <div className="bg-blue-600 text-white px-4 py-3 rounded-2xl rounded-br-sm">
+                      {cp.question}
+                    </div>
+
+                    <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
+                      <User size={20} />
+                    </div>
+
+                  </div>
                 </div>
+                {/* ASSISTANT MESSAGE */}
                 <div className="flex justify-start">
-                  <div className="bg-gray-200 text-gray-900 px-4 py-2 rounded-2xl rounded-bl-sm max-w-[100%]">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{cp.answer}</ReactMarkdown>
+                  <div className="flex items-end gap-3 max-w-[80%]">
+
+                    <div className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center shrink-0">
+                      <Bot size={20} />
+                    </div>
+
+                    <div className="bg-white border border-gray-200 text-gray-900 px-4 py-3 rounded-2xl rounded-bl-sm prose prose-sm max-w-none shadow-sm">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {cp.answer}
+                      </ReactMarkdown>
+                    </div>
+
                   </div>
                 </div>
               </div>)
@@ -111,16 +134,37 @@ export default function Home() {
 
         {isStreaming && (
           <div className="flex flex-col gap-3 mb-6">
+            {/* USER */}
             <div className="flex justify-end">
-              <div className="bg-blue-600 text-white px-4 py-2 rounded-2xl rounded-br-sm max-w-[75%]">
-                {currentQuestion}
+              <div className="flex items-end gap-3 max-w-[80%]">
+
+                <div className="bg-blue-600 text-white px-4 py-3 rounded-2xl rounded-br-sm">
+                  {currentQuestion}
+                </div>
+
+                <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
+                  <User size={20} />
+                </div>
+
               </div>
             </div>
 
+            {/* STREAMING ASSISTANT */}
             <div className="flex justify-start">
-              <div className="bg-gray-200 text-gray-900 px-4 py-2 rounded-2xl rounded-bl-sm max-w-[100%]">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{streamingAnswer}</ReactMarkdown>
-                <span className="animate-pulse">▋</span>
+              <div className="flex items-end gap-3 max-w-[80%]">
+
+                <div className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center shrink-0">
+                  <Bot size={20} />
+                </div>
+
+                <div className="bg-white border border-gray-200 text-gray-900 px-4 py-3 rounded-2xl rounded-bl-sm prose prose-sm max-w-none shadow-sm">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {streamingAnswer}
+                  </ReactMarkdown>
+
+                  <span className="animate-pulse">▋</span>
+                </div>
+
               </div>
             </div>
           </div>
