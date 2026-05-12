@@ -7,7 +7,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { User, Bot } from 'lucide-react'
 
-import { askQuestion } from '@/lib/query'
+import { askQuestion, getConversationHistory } from '@/lib/query'
 import { ValidationError } from '@/lib/common/error'
 
 interface ConversationPiece {
@@ -29,6 +29,14 @@ export default function Home() {
   const placeholder = 'Ask anything...'
 
   useEffect(() => {
+    const loadConversationHistory = async () => {
+      const existingConversation = await getConversationHistory('12345')
+      setConversationPieces(existingConversation.pieces)
+    }
+    loadConversationHistory()
+  }, [])
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [conversationPieces])
 
@@ -48,12 +56,24 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    const question = currentQuestion.trim()
+
+    if (!question) {
+      setMessage('Please enter a question')
+      setMessageClasses('text-red-500')
+      return
+    }
+
+    if (question.length > 500) {
+      setMessage('Question is too long')
+      setMessageClasses('text-red-500')
+      return
+    }
+
     setLoading(true)
     setMessage('')
     setStreamingAnswer('')
     setIsStreaming(true)
-
-    const question = currentQuestion
 
     try {
       let fullAnswer = ''
@@ -61,7 +81,7 @@ export default function Home() {
       await askQuestion(question, (token) => {
         fullAnswer += token
         setStreamingAnswer(fullAnswer)
-      })
+      }, 'pupil', '12345')
 
       const current: ConversationPiece = {
         question,
@@ -192,9 +212,9 @@ export default function Home() {
             {message && <div className={messageClasses}>{message}</div>}
 
             <button
-              disabled={buttonDisabled || loading}
+              disabled={buttonDisabled || loading || isStreaming}
               type="submit"
-              className={`bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition ${buttonDisabled || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition ${buttonDisabled || loading || isStreaming ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {loading ? 'Thinking...' : 'Ask'}
             </button>

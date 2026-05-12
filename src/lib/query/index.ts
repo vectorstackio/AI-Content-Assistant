@@ -3,6 +3,25 @@
 import config from '@/lib/common/config'
 //import { FetchResponse } from '@/types'
 
+interface Message {
+  userId: string
+  content: string
+  role: string
+  queryId: string
+  createdAt: Date
+}
+
+interface ConversationPiece {
+  question: string
+  answer: string
+}
+
+interface ConversationHistory {
+  success: boolean
+  pieces: ConversationPiece[]
+  error?: string
+}
+
 /**
  * @function ingestUrl
  * Return a response object.
@@ -14,12 +33,13 @@ import config from '@/lib/common/config'
 export const askQuestion = async (
   question: string,
   onChunk: (chunk: string) => void,
-  userType: string = 'pupil'
+  userType: string = 'pupil',
+  userId: string = '12345'
 ): Promise<void> => {
   const response = await fetch(`${config.app.apiUrl}/api/query`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question, userType }),
+    body: JSON.stringify({ question, userType, userId }),
   })
 
   if (!response.body) {
@@ -37,14 +57,37 @@ export const askQuestion = async (
     onChunk(chunk)
   }
 }
-// export const askQuestion = async (question: string, userType: string = 'pupil'): Promise<FetchResponse> => {
-//   const response = await fetch(`${config.app.apiUrl}/api/query`, {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ question, userType }),
-//   })
 
-//   //validate({ url, userType })
-//   const data: FetchResponse = await response.json()
-//   return data
-// }
+/**
+ * @function getConversationHistory
+ * Return a response object.
+ *
+ * @param  {string}     userId     The user ID.
+ * @return {object}
+ */
+export const getConversationHistory = async (userId: string): Promise<ConversationHistory> => {
+  try {
+    const response = await fetch(`${config.app.apiUrl}/api/query/${userId}`)
+    const result = await response.json()
+    return getPiecesFromMessages(result.data)
+  } catch (err: unknown) {
+    return {
+      success: false,
+      pieces: [],
+      error: err instanceof Error ? err.message : 'Unknown error',
+    }
+  }
+}
+
+const getPiecesFromMessages = (messages: Message[]): ConversationHistory => {
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return { success: true, pieces: [] }
+  }
+  const obj: { [queryId: string]: ConversationPiece } = {}
+  for (const message of messages) {
+    if (message.queryId) obj[message.queryId] = obj[message.queryId] || {}
+    if (message.role === 'user') obj[message.queryId].question = message.content
+    if (message.role === 'assistant') obj[message.queryId].answer = message.content
+  }
+  return { success: true, pieces: Object.values(obj) }
+}
