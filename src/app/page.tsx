@@ -96,7 +96,7 @@ export default function Home() {
           conversationPieces.length > 0 &&
           <div className="h-[70vh] overflow-y-auto">
             {conversationPieces.map((cp, i) => (
-              <div className="flex flex-col gap-3 mb-6" key={i}>
+              <div className="flex flex-col gap-3 mb-6 animate-fade-in-up" key={i}>
                 {/* USER MESSAGE */}
                 <div className="flex justify-end">
                   <div className="flex items-end gap-3 max-w-[80%]">
@@ -134,7 +134,7 @@ export default function Home() {
         }
 
         {isStreaming && (
-          <div className="flex flex-col gap-3 mb-6">
+          <div className="flex flex-col gap-3 mb-6 animate-fade-in-up">
             {/* USER */}
             <div className="flex justify-end">
               <div className="flex items-end gap-3 max-w-[80%]">
