@@ -68,6 +68,11 @@ export const askQuestion = async (
 export const getConversationHistory = async (userId: string): Promise<ConversationHistory> => {
   try {
     const response = await fetch(`${config.app.apiUrl}/api/query/${userId}`)
+    if (!response.ok) {
+      throw new Error(
+        `Request failed with status ${response.status}`
+      )
+    }
     const result = await response.json()
     return getPiecesFromMessages(result.data)
   } catch (err: unknown) {
