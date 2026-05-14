@@ -35,27 +35,68 @@ export const askQuestion = async (
   onChunk: (chunk: string) => void,
   userType: string = 'pupil',
   userId: string = '12345'
-): Promise<void> => {
-  const response = await fetch(`${config.app.apiUrl}/api/query`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question, userType, userId }),
-  })
+): Promise<{ status: string | null }> => {
+
+  const response = await fetch(
+    `${config.app.apiUrl}/api/query`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        question,
+        userType,
+        userId,
+      }),
+    }
+  )
+
+  // ✅ MUST read BEFORE consuming body
+  const status = response.headers.get('X-AI-Status')
 
   if (!response.body) {
     throw new Error('No response body')
   }
 
   const reader = response.body.getReader()
+
   const decoder = new TextDecoder()
 
   while (true) {
-    const { value, done } = await reader.read()
+    const { value, done } =
+      await reader.read()
+
     if (done) break
 
-    const chunk = decoder.decode(value, { stream: true })
+    const chunk =
+      decoder.decode(value, {
+        stream: true,
+      })
+
     onChunk(chunk)
   }
+
+  return {
+    status,
+  }
+}
+
+/**
+ * @function isGibberish
+ * Return true if text is gibberish.
+ *
+ * @param  {string}     text     The text to check.
+ * @return {boolean}
+ */
+export const isGibberish = (text: string) => {
+  const words = text.trim().split(/\s+/)
+
+  const lowVocab = words.filter(
+    w => w.length < 3
+  ).length
+
+  return lowVocab / words.length > 0.4
 }
 
 /**

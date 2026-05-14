@@ -7,12 +7,13 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { User, Bot } from 'lucide-react'
 
-import { askQuestion, getConversationHistory } from '@/lib/query'
+import { askQuestion, getConversationHistory, isGibberish } from '@/lib/query'
 import { ValidationError } from '@/lib/common/error'
 
 interface ConversationPiece {
   question: string
   answer: string
+  type?: 'normal' | 'escalation'
 }
 
 export default function Home() {
@@ -53,7 +54,9 @@ export default function Home() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault()
 
     const question = currentQuestion.trim()
@@ -70,6 +73,12 @@ export default function Home() {
       return
     }
 
+    if (isGibberish(question)) {
+      setMessage('Is that a real question?')
+      setMessageClasses('text-red-500')
+      return
+    }
+
     setLoading(true)
     setMessage('')
     setStreamingAnswer('')
@@ -78,25 +87,53 @@ export default function Home() {
     try {
       let fullAnswer = ''
 
-      await askQuestion(question, (token) => {
-        fullAnswer += token
-        setStreamingAnswer(fullAnswer)
-      }, 'pupil', '12345')
+      const { status } =
+        await askQuestion(
+          question,
+          (token) => {
+            fullAnswer += token
+            setStreamingAnswer(fullAnswer)
+          },
+          'pupil',
+          '12345'
+        )
 
       const current: ConversationPiece = {
         question,
         answer: fullAnswer,
+        type: 'normal',
       }
 
-      setConversationPieces(prev => [...prev, current])
+      // 🟡 ESCALATION CASE
+      if (status === 'unknown') {
+        setConversationPieces((prev) => [
+          ...prev,
+          {
+            question,
+            answer:
+              'I couldn\'t find a confident answer. If you\'d like, you can email our support team and we\'ll get back to you.',
+            type: 'escalation',
+          },
+        ])
+      }
+      else {
+        setConversationPieces((prev) => [
+          ...prev,
+          current,
+        ])
+      }
+
       setCurrentQuestion('')
       setStreamingAnswer('')
+
     } catch (err) {
       if (err instanceof ValidationError) {
         setMessage(err.message)
         setMessageClasses('text-red-500')
       } else {
-        setMessage('An unexpected error occurred')
+        setMessage(
+          'An unexpected error occurred'
+        )
         setMessageClasses('text-red-500')
       }
     } finally {
@@ -139,7 +176,8 @@ export default function Home() {
                       <Bot size={20} />
                     </div>
 
-                    <div className="bg-white border border-gray-200 text-gray-900 px-4 py-3 rounded-2xl rounded-bl-sm prose prose-sm max-w-none shadow-sm">
+                    <div 
+                      className={`bg-white border border-gray-200 text-gray-900 px-4 py-3 rounded-2xl rounded-bl-sm prose prose-sm max-w-none shadow-sm ${cp.type === 'escalation' ? 'bg-yellow-100' : ''}`}>
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {cp.answer}
                       </ReactMarkdown>
