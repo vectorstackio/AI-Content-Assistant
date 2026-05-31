@@ -7,7 +7,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { User, Bot } from 'lucide-react'
 
-import { askQuestion, getConversationHistory, isGibberish } from '@/lib/query'
+import { askQuestion, getConversationHistory/*, isGibberish */ } from '@/lib/query'
 import { ValidationError } from '@/lib/common/error'
 
 interface ConversationPiece {
@@ -73,11 +73,11 @@ export default function Home() {
       return
     }
 
-    if (isGibberish(question)) {
-      setMessage('Is that a real question?')
-      setMessageClasses('text-red-500')
-      return
-    }
+    // if (isGibberish(question)) {
+    //   setMessage('Is that a real question?')
+    //   setMessageClasses('text-red-500')
+    //   return
+    // }
 
     setLoading(true)
     setMessage('')
@@ -144,7 +144,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-1/2 mx-auto">
+      <div className="bg-white shadow-lg rounded-2xl p-4 sm:p-8 w-full md:w-1/2 mx-auto">
         {conversationPieces.length === 0 && <h1 className="text-2xl font-bold text-gray-800 mb-6">
           Ask a Question
         </h1>}
