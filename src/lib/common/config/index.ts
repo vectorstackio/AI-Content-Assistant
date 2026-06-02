@@ -4,6 +4,7 @@ const config = {
   app: {
     name: 'Test AI App',
     apiUrl: process.env.NEXT_PUBLIC_API_URL,
+    awsUrl: process.env.NEXT_PUBLIC_AWS_URL,
   },
 }
 
