@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start -p 3020",
     "lint": "eslint",
-    "codelint": "npm run lint src/ && tsc --noEmit"
+    "codelint": "npm run lint src/ && tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
