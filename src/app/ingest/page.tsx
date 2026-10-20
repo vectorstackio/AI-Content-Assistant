@@ -2,8 +2,9 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
+import IngestForm, { type IngestFeedback } from '@/components/ingest/IngestForm'
 import { ingestUrl } from '@/lib/ingest'
 import { ValidationError } from '@/lib/common/error'
 
@@ -11,9 +12,8 @@ export default function IngestPage() {
   const [url, setUrl] = useState('')
   const [userType, setUserType] = useState('')
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [messageClasses, setMessageClasses] = useState('text-green-500')
-  const buttonDisabled = !url || !userType
+  const [feedback, setFeedback] = useState<IngestFeedback | null>(null)
+  const submittingRef = useRef(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -23,28 +23,46 @@ export default function IngestPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    try {
-      setLoading(true)
-      const response = await ingestUrl(url, userType)
-      const msg = response.success
-        ? response.message
-        : response.error
+    if (submittingRef.current) return
+    const trimmedUrl = url.trim()
+    setFeedback(null)
 
-      setMessage(msg || '')
-      setMessageClasses(response.success ? 'text-green-500' : 'text-red-500')
-      setLoading(false)
-      setUrl('')
-      setUserType('')
-    } catch(err) {
-      if (err instanceof ValidationError) {
-        setMessage(err.message)
-        setMessageClasses('text-red-500')
+    try {
+      if (!trimmedUrl) throw new ValidationError('URL is required')
+      // Preserve support for www URLs; only the trimmed input is sent to the API.
+      let parsedUrl: URL
+
+      try {
+        parsedUrl = new URL(/^www\./i.test(trimmedUrl) ? `https://${trimmedUrl}` : trimmedUrl)
+      } catch {
+        throw new ValidationError('Please enter a valid URL')
       }
-      else {
-        setMessage('An unexpected error occurred')
-        setMessageClasses('text-red-500')
+
+      if (!['http:', 'https:'].includes(parsedUrl.protocol) || /\s/.test(trimmedUrl)) {
+        throw new ValidationError('Please enter a valid URL')
       }
+
+      if (!userType) throw new ValidationError('User type is required')
+      submittingRef.current = true
+      setLoading(true)
+      const response = await ingestUrl(trimmedUrl, userType)
+
+      setFeedback({
+        type: response.success ? 'success' : 'error',
+        message: (response.success ? response.message : response.error) || '',
+      })
+
+      if (response.success) {
+        setUrl('')
+        setUserType('')
+      }
+    } catch (err) {
+      setFeedback({
+        type: 'error',
+        message: err instanceof ValidationError ? err.message : 'An unexpected error occurred',
+      })
     } finally {
+      submittingRef.current = false
       setLoading(false)
     }
   }
@@ -56,38 +74,14 @@ export default function IngestPage() {
           Submit a URL
         </h1>
 
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="url"
-            placeholder="https://example.com"
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={url}
-            onChange={(e) => handleChange(e)}
-          />
-
-          <select
-            name="userType"
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={userType}
-            onChange={(e) => handleChange(e)}
-          >
-            <option value=""> - Select user type - </option>
-            <option value="pupil">Student</option>
-            <option value="teacher">Teacher</option>
-            <option value="tutor">Tutor</option>
-          </select>
-
-          {message && <div className={messageClasses}>{message}</div>}
-
-          <button
-            disabled={buttonDisabled || loading}
-            type="submit"
-            className={`bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition ${buttonDisabled || loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            {loading ? 'Ingesting...' : 'Add Content'}
-          </button>
-        </form>
+        <IngestForm
+          url={url}
+          userType={userType}
+          loading={loading}
+          feedback={feedback}
+          onChange={handleChange}
+          onSubmit={handleSubmit}
+        />
       </div>
     </main>
   )
