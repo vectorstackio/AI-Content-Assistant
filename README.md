@@ -1,36 +1,199 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+AI Content Assistant
 
-## Getting Started
+A Next.js application that allows users to submit web content and ask questions about it using AI.
 
-First, run the development server:
+The project demonstrates how to build an AI-powered application using React, Next.js, TypeScript and the OpenAI API, with an emphasis on clean component architecture, asynchronous processing, streaming responses and automated testing.
 
-```bash
+Features
+
+URL ingestion — Submit a URL for processing by the backend.
+
+AI-powered questions — Ask questions about ingested content.
+
+Streaming responses — Display AI-generated answers progressively as they arrive.
+
+Conversation history — Retrieve and display previous questions and answers.
+
+Markdown rendering — Format AI-generated answers for readability.
+
+Error handling — Handle validation errors, API failures and unsuccessful requests.
+
+User types — Support student, teacher and tutor content categories.
+
+Automated testing — Unit and component tests using Vitest and React Testing Library.
+
+Continuous integration — GitHub Actions automatically runs tests, linting, TypeScript checks and production builds.
+
+Technology Stack
+
+Technology
+
+Purpose
+
+Next.js
+
+React framework and application routing
+
+React
+
+User interface
+
+TypeScript
+
+Type safety
+
+Tailwind CSS
+
+Styling
+
+OpenAI API
+
+AI-powered question answering through the backend
+
+Vitest
+
+Unit and integration testing
+
+React Testing Library
+
+React component testing
+
+GitHub Actions
+
+Continuous integration
+
+Architecture
+
+The application separates presentation, page-level orchestration and API communication.
+
+src/
+├── app/
+│   ├── page.tsx
+│   └── ingest/
+│       └── page.tsx
+├── components/
+│   ├── query/
+│   │   ├── Conversation.tsx
+│   │   ├── ConversationPiece.tsx
+│   │   ├── QuestionForm.tsx
+│   │   └── StreamingAnswer.tsx
+│   └── ingest/
+│       └── IngestForm.tsx
+├── lib/
+│   ├── query/
+│   ├── ingest/
+│   └── common/
+└── tests/
+    ├── app/
+    ├── components/
+    └── lib/
+
+Application pages manage state, user interactions and API calls.
+
+React components handle presentation and are designed to be independently testable.
+
+Library modules encapsulate communication with backend services.
+
+Tests are maintained separately from production code, mirroring the application structure.
+
+Getting Started
+
+Prerequisites
+
+Node.js 24
+
+npm
+
+Access to the application's backend API
+
+Installation
+
+Clone the repository:
+
+git clone https://github.com/vectorstackio/hubaicli.git
+cd hubaicli
+npm ci
+
+Configure any required environment variables for your backend connection.
+
+Start the development server:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Testing
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The project uses Vitest and React Testing Library to test components, application pages and API communication.
 
-## Learn More
+Run the test suite:
 
-To learn more about Next.js, take a look at the following resources:
+npm run test:run
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Generate a coverage report:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+npm run test:coverage
 
-## Deploy on Vercel
+The HTML coverage report can be viewed at:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+coverage/index.html
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The test suite covers:
+
+Form validation and submission
+
+Conversation history
+
+Streaming responses
+
+Successful and unsuccessful API requests
+
+Loading and error states
+
+Ingestion requests
+
+React component behaviour
+
+Code Quality
+
+Run ESLint:
+
+npm run lint
+
+Check TypeScript:
+
+npx tsc --noEmit
+
+Build the production application:
+
+npm run build
+
+Continuous Integration
+
+The repository includes a GitHub Actions workflow that runs automatically on pushes and pull requests.
+
+The workflow performs:
+
+Dependency installation
+
+Automated tests and coverage
+
+TypeScript validation
+
+ESLint checks
+
+Production build
+
+This helps identify regressions and ensures code quality checks are consistently applied.
+
+Project Scope
+
+This repository contains the Next.js frontend for the AI content ingestion and question-answering application.
+
+The backend services responsible for content processing and AI integration are separate from the frontend application.
+
+Author
+
+Michael Garthwaite
+
+Senior Full-Stack Developer & Technical Lead
