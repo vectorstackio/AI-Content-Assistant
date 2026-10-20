@@ -11,9 +11,14 @@ interface Message {
   createdAt: Date
 }
 
-interface ConversationPiece {
-  question: string
-  answer: string
+// interface ConversationPiece {
+//   question: string
+//   answer: string
+// }
+
+type ConversationPiece = {
+  question?: string
+  answer?: string
 }
 
 interface ConversationHistory {
@@ -52,6 +57,10 @@ export const askQuestion = async (
     }
   )
 
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`)
+  }
+
   // ✅ MUST read BEFORE consuming body
   const status = response.headers.get('X-AI-Status')
 
@@ -60,20 +69,14 @@ export const askQuestion = async (
   }
 
   const reader = response.body.getReader()
-
   const decoder = new TextDecoder()
 
   while (true) {
-    const { value, done } =
-      await reader.read()
+    const { value, done } = await reader.read()
 
     if (done) break
 
-    const chunk =
-      decoder.decode(value, {
-        stream: true,
-      })
-
+    const chunk = decoder.decode(value, { stream: true })
     onChunk(chunk)
   }
 
@@ -110,11 +113,11 @@ export const getConversationHistory = async (userId: string): Promise<Conversati
   try {
     const response = await fetch(`${config.app.apiUrl}/api/query/${userId}`)
     if (!response.ok) {
-      throw new Error(
-        `Request failed with status ${response.status}`
-      )
+      throw new Error(`Request failed with status ${response.status}`)
     }
+
     const result = await response.json()
+
     return getPiecesFromMessages(result.data)
   } catch (err: unknown) {
     return {
@@ -126,14 +129,29 @@ export const getConversationHistory = async (userId: string): Promise<Conversati
 }
 
 const getPiecesFromMessages = (messages: Message[]): ConversationHistory => {
-  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+  if (!Array.isArray(messages) || messages.length === 0) {
     return { success: true, pieces: [] }
   }
-  const obj: { [queryId: string]: ConversationPiece } = {}
+
+  const pieces = new Map<string, ConversationPiece>()
+
   for (const message of messages) {
-    if (message.queryId) obj[message.queryId] = obj[message.queryId] || {}
-    if (message.role === 'user') obj[message.queryId].question = message.content
-    if (message.role === 'assistant') obj[message.queryId].answer = message.content
+    const { queryId, role, content } = message
+    if (!queryId) continue
+    if (role !== 'user' && role !== 'assistant') continue
+    const piece = pieces.get(queryId) ?? {}
+
+    if (role === 'user') {
+      piece.question = content
+    } else {
+      piece.answer = content
+    }
+
+    pieces.set(queryId, piece)
   }
-  return { success: true, pieces: Object.values(obj) }
+
+  return {
+    success: true,
+    pieces: Array.from(pieces.values()),
+  }
 }

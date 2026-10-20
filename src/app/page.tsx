@@ -11,8 +11,8 @@ import { askQuestion, getConversationHistory/*, isGibberish */ } from '@/lib/que
 import { ValidationError } from '@/lib/common/error'
 
 interface ConversationPiece {
-  question: string
-  answer: string
+  question?: string
+  answer?: string
   type?: 'normal' | 'escalation'
 }
 
@@ -31,10 +31,16 @@ export default function Home() {
 
   useEffect(() => {
     const loadConversationHistory = async () => {
-      const existingConversation = await getConversationHistory('12345')
-      setConversationPieces(existingConversation.pieces)
+      try {
+        const existingConversation = await getConversationHistory('12345')
+        setConversationPieces(existingConversation.pieces)
+      } catch {
+        setMessage('Unable to load conversation history')
+        setMessageClasses('text-red-500')
+      }
     }
-    loadConversationHistory()
+
+    void loadConversationHistory()
   }, [])
 
   useEffect(() => {
@@ -72,12 +78,6 @@ export default function Home() {
       setMessageClasses('text-red-500')
       return
     }
-
-    // if (isGibberish(question)) {
-    //   setMessage('Is that a real question?')
-    //   setMessageClasses('text-red-500')
-    //   return
-    // }
 
     setLoading(true)
     setMessage('')
@@ -240,11 +240,21 @@ export default function Home() {
               onChange={handleTextareaChange}
               className="w-full resize-none overflow-hidden border border-gray-300 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
+                if (
+                  e.key === 'Enter' &&
+                  !e.shiftKey &&
+                  !e.nativeEvent.isComposing
+                ) {
                   e.preventDefault()
-                  handleSubmit(e as unknown as React.FormEvent)
+                  e.currentTarget.form?.requestSubmit()
                 }
               }}
+              // onKeyDown={(e) => {
+              //   if (e.key === 'Enter' && !e.shiftKey) {
+              //     e.preventDefault()
+              //     handleSubmit(e as unknown as React.FormEvent)
+              //   }
+              // }}
             />
 
             {message && <div className={messageClasses}>{message}</div>}

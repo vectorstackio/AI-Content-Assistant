@@ -12,26 +12,6 @@ import { FetchResponse, ValidationInput } from '@/types'
  * @param  {string}     userType     The type of user.
  * @return {object}
  */
-// export const ingestUrl = async (url: string, userType: string): Promise<FetchResponse> => {
-//   validate({ url, userType })
-//   const response = await fetch(
-//     `${config.app.awsUrl}/ingest`,
-//     {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         url,
-//         userType,
-//       }),
-//     }
-//   )
-//   //console.log(response)
-//   const data: FetchResponse = await response.json()
-//   //console.log(data)
-//   return data
-// }
 export const ingestUrl = async (url: string, userType: string): Promise<FetchResponse> => {
   validate({ url, userType })
   const response = await fetch(`${config.app.apiUrl}/api/ingest`, {
