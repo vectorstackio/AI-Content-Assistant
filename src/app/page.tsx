@@ -59,6 +59,7 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (loading || isStreaming) return
     const question = currentQuestion.trim()
 
     if (!question) {
