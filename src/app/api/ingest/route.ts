@@ -33,6 +33,8 @@ export const POST = async (request: NextRequest) => {
   const apiKey = process.env.INGEST_API_KEY
 
   if (!username || !password || !apiKey) {
+    // Keep server-side diagnostics for configuration and upstream failures.
+    // eslint-disable-next-line no-console
     console.error('Ingestion authentication is not configured')
 
     return NextResponse.json(
@@ -97,6 +99,8 @@ export const POST = async (request: NextRequest) => {
       },
     })
   } catch (error) {
+    // Keep server-side diagnostics for configuration and upstream failures.
+    // eslint-disable-next-line no-console
     console.error('Ingestion proxy error:', error)
 
     return NextResponse.json(

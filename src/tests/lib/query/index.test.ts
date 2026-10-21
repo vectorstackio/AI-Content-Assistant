@@ -166,10 +166,10 @@ describe('askQuestion', () => {
 })
 
 describe('getConversationHistory and message grouping', () => {
-  it('requests the history for the supplied user and accepts an empty history', async () => {
+  it('requests history through the local proxy and accepts an empty history', async () => {
     historyResponse([])
     await expect(getConversationHistory('user-1')).resolves.toEqual({ success: true, pieces: [] })
-    expect(fetchMock).toHaveBeenCalledExactlyOnceWith('https://api.example.test/api/query/user-1')
+    expect(fetchMock).toHaveBeenCalledExactlyOnceWith('/api/query/history')
   })
 
   it.each([undefined, null, {}, 'invalid'])('currently treats non-array data %j as empty history', async (data) => {

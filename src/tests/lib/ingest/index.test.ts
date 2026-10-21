@@ -15,19 +15,30 @@ const validInput: ValidationInput = { url: 'https://example.com/article', userTy
 beforeEach(() => {
   fetchMock.mockReset()
   vi.stubGlobal('fetch', fetchMock)
+  vi.stubEnv('INGEST_API_KEY', 'server-only-test-secret')
 })
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  vi.unstubAllEnvs()
 })
 
 describe('ingestUrl requests and responses', () => {
+  it('keeps the server API key out of browser requests', async () => {
+    fetchMock.mockResolvedValue(Response.json({ success: true }))
+    await ingestUrl(validInput.url, validInput.userType)
+    const [url, options] = fetchMock.mock.calls[0]
+    expect(url).toBe('/api/ingest')
+    expect(new Headers(options?.headers).has('x-api-key')).toBe(false)
+    expect(JSON.stringify(fetchMock.mock.calls)).not.toContain('server-only-test-secret')
+  })
+
   it.each(['pupil', 'teacher', 'tutor'])('posts the URL and supported %s user type and returns parsed JSON', async (userType) => {
     const data: FetchResponse = { success: true, message: 'Content added' }
     fetchMock.mockResolvedValue(Response.json(data))
 
     await expect(ingestUrl(validInput.url, userType)).resolves.toEqual(data)
-    expect(fetchMock).toHaveBeenCalledExactlyOnceWith('https://api.example.test/api/ingest', {
+    expect(fetchMock).toHaveBeenCalledExactlyOnceWith('/api/ingest', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: validInput.url, userType }),
@@ -137,7 +148,7 @@ describe('ingestUrl input validation', () => {
   ])('accepts the supported URL form %s and sends it unchanged', async (url) => {
     fetchMock.mockResolvedValue(Response.json({ success: true }))
     await expect(ingestUrl(url, 'pupil')).resolves.toEqual({ success: true })
-    expect(fetchMock).toHaveBeenCalledWith('https://api.example.test/api/ingest', expect.objectContaining({
+    expect(fetchMock).toHaveBeenCalledWith('/api/ingest', expect.objectContaining({
       body: JSON.stringify({ url, userType: 'pupil' }),
     }))
   })
@@ -145,7 +156,7 @@ describe('ingestUrl input validation', () => {
   it.each(['  https://example.com  ', 'prefix https://example.com suffix'])('currently matches URLs within surrounding text and sends the whole input: %s', async (url) => {
     fetchMock.mockResolvedValue(Response.json({ success: true }))
     await expect(ingestUrl(url, 'pupil')).resolves.toEqual({ success: true })
-    expect(fetchMock).toHaveBeenCalledWith('https://api.example.test/api/ingest', expect.objectContaining({
+    expect(fetchMock).toHaveBeenCalledWith('/api/ingest', expect.objectContaining({
       body: JSON.stringify({ url, userType: 'pupil' }),
     }))
   })

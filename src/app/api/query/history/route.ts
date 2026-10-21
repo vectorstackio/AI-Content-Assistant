@@ -37,6 +37,8 @@ export async function GET() {
       },
     })
   } catch (error) {
+    // Keep server-side diagnostics for configuration and upstream failures.
+    // eslint-disable-next-line no-console
     console.error('History proxy error:', error)
 
     return NextResponse.json(

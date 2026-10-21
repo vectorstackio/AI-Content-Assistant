@@ -109,7 +109,7 @@ export const isGibberish = (text: string) => {
  * @param  {string}     userId     The user ID.
  * @return {object}
  */
-export const getConversationHistory = async (userId: string): Promise<ConversationHistory> => {
+export const getConversationHistory = async (_userId: string): Promise<ConversationHistory> => {
   try {
     const response = await fetch('/api/query/history')
     if (!response.ok) {
