@@ -14,12 +14,17 @@ import { FetchResponse, ValidationInput } from '@/types'
  */
 export const ingestUrl = async (url: string, userType: string): Promise<FetchResponse> => {
   validate({ url, userType })
-  const response = await fetch(`${config.app.apiUrl}/api/ingest`, {
+
+  const response = await fetch('/api/ingest', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({ url, userType }),
   })
+
   const data: FetchResponse = await response.json()
+
   return data
 }
 

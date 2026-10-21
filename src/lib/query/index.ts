@@ -111,7 +111,7 @@ export const isGibberish = (text: string) => {
  */
 export const getConversationHistory = async (userId: string): Promise<ConversationHistory> => {
   try {
-    const response = await fetch(`${config.app.apiUrl}/api/query/${userId}`)
+    const response = await fetch('/api/query/history')
     if (!response.ok) {
       throw new Error(`Request failed with status ${response.status}`)
     }
